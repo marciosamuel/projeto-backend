@@ -1,28 +1,18 @@
 import { ApolloError } from "apollo-server";
-import { Arg, Query, Resolver, ArgsType, Args, Field } from "type-graphql";
+import { Arg, Args, Query, Resolver } from "type-graphql";
 import { getAll, getOne } from "../api";
+import { Filter, FilterArgs, ListArgs } from "./argsType";
 import { SuperHero } from "./objectTypes";
-
-@ArgsType()
-class ListArgs {
-  @Field(() => Number, { nullable: true })
-  limit?: number;
-  @Field(() => String, { nullable: true })
-  order?: string;
-}
 
 @Resolver(SuperHero)
 export class SuperHeroResolver {
   private data: SuperHero[] = [];
 
   @Query(() => [SuperHero])
-  async listHeroes(@Args() { limit, order }: ListArgs): Promise<SuperHero[]> {
+  async listHeroes(@Args() {limit, order}: ListArgs): Promise<SuperHero[]> {
     try {
       const data = await getAll();
-      const heroes: (SuperHero & { [key: string]: any })[] = [
-        ...data,
-        ...this.data,
-      ];
+      const heroes: SuperHero[] = [...data, ...this.data];
 
       if (!order) return heroes.slice(0, limit);
 
@@ -52,10 +42,43 @@ export class SuperHeroResolver {
     if (localHero) return localHero;
 
     try {
-      const apiHero = await getOne(id);
-      return apiHero;
+      return await getOne(id);
     } catch (error) {
       throw new ApolloError("Superhero not found");
+    }
+  }
+
+  @Query(() => [SuperHero])
+  async searchHeroes(@Args() {query, filter}: FilterArgs) {
+    try {
+      const data = await getAll();
+      const heroes = [...data, ...this.data];
+
+      function search(prop?: string | number | Object): boolean {
+        if (!prop) return false;
+
+        if (typeof prop === "object") {
+          let heroFound = false;
+          Object.values(prop).forEach((value) => {
+            if (heroFound) return;
+            heroFound = search(value);
+          });
+          return heroFound;
+        }
+
+        return `${prop}`.toLowerCase().includes(query.toLowerCase());
+      }
+
+      if (!filter) return heroes.filter((hero) => search(hero));
+
+      if (filter === Filter.name)
+        return heroes.filter((hero) =>
+          hero.name.toLowerCase().includes(query.toLowerCase())
+        );
+      return heroes.filter((hero) => search(hero[filter]));
+    } catch (error) {
+      console.log(error);
+      throw new ApolloError("Failed to load heroes");
     }
   }
 }

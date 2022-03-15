@@ -67,8 +67,20 @@ export class Connections {
 }
 
 @ObjectType()
+export class Images {
+  @Field()
+  xs?: string;
+  @Field()
+  sm?: string;
+  @Field()
+  md?: string;
+  @Field()
+  lg?: string;
+}
+
+@ObjectType()
 export class SuperHero {
-  @Field(() => ID)
+  @Field(() => ID, { nullable: false })
   id!: number;
   @Field()
   name!: string;
@@ -84,6 +96,8 @@ export class SuperHero {
   work?: Work;
   @Field()
   connections?: Connections;
+  @Field()
+  images?: Images;
 
   [key: string]: any;
 }
