@@ -6,6 +6,7 @@ import { SuperHeroResolver } from "./graphql/resolvers";
 async function startServer() {
   const schema = await buildSchema({
     resolvers: [SuperHeroResolver],
+    emitSchemaFile: true,
   });
 
   const server = new ApolloServer({ schema });

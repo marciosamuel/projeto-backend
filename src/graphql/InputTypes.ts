@@ -1,8 +1,17 @@
-import { Field, ID, Int, ObjectType } from "type-graphql";
+import { Field, InputType } from "type-graphql";
+import {
+  Appearance,
+  Biography,
+  Connections,
+  Images,
+  PowerStats,
+  SuperHero,
+  Work,
+} from "./objectTypes";
 
-@ObjectType()
-export class PowerStats {
-  @Field(() => Int, { nullable: true })
+@InputType()
+export class PowerStatsInput implements PowerStats {
+  @Field({ nullable: true })
   intelligence?: number;
   @Field({ nullable: true })
   strength?: number;
@@ -16,8 +25,8 @@ export class PowerStats {
   combat?: number;
 }
 
-@ObjectType()
-export class Appearance {
+@InputType()
+export class AppearanceInput implements Appearance {
   @Field({ nullable: true })
   gender?: string;
   @Field({ nullable: true })
@@ -32,8 +41,8 @@ export class Appearance {
   hairColor?: string;
 }
 
-@ObjectType()
-export class Biography {
+@InputType()
+export class BiographyInput implements Biography {
   @Field({ nullable: true })
   fullName?: string;
   @Field({ nullable: true })
@@ -50,24 +59,24 @@ export class Biography {
   alignment?: string;
 }
 
-@ObjectType()
-export class Work {
+@InputType()
+export class WorkInput implements Work {
   @Field({ nullable: true })
   occupation?: string;
   @Field({ nullable: true })
   base?: string;
 }
 
-@ObjectType()
-export class Connections {
+@InputType()
+export class ConnectionsInput implements Connections {
   @Field({ nullable: true })
   groupAffiliation?: string;
   @Field({ nullable: true })
   relatives?: string;
 }
 
-@ObjectType()
-export class Images {
+@InputType()
+export class ImagesInput implements Images {
   @Field({ nullable: true })
   xs?: string;
   @Field({ nullable: true })
@@ -78,26 +87,26 @@ export class Images {
   lg?: string;
 }
 
-@ObjectType()
-export class SuperHero {
-  @Field(() => ID, { nullable: false })
-  id!: number;
+@InputType()
+export class Data implements Partial<SuperHero> {
   @Field()
   name!: string;
-  @Field({ nullable: true })
-  slug?: string;
-  @Field({ nullable: true })
-  powerstats?: PowerStats;
-  @Field({ nullable: true })
-  appearance?: Appearance;
-  @Field({ nullable: true })
-  biography?: Biography;
-  @Field({ nullable: true })
-  work?: Work;
-  @Field({ nullable: true })
-  connections?: Connections;
-  @Field({ nullable: true })
-  images?: Images;
 
-  [key: string]: any;
+  @Field(() => PowerStatsInput, { nullable: true })
+  powerstats?: PowerStatsInput;
+
+  @Field(() => AppearanceInput, { nullable: true })
+  appearance?: AppearanceInput;
+
+  @Field(() => BiographyInput, { nullable: true })
+  biography?: BiographyInput;
+
+  @Field(() => WorkInput, { nullable: true })
+  work?: WorkInput;
+
+  @Field(() => ConnectionsInput, { nullable: true })
+  connections?: ConnectionsInput;
+
+  @Field(() => ImagesInput, { nullable: true })
+  images?: ImagesInput;
 }

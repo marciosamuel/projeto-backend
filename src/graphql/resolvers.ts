@@ -1,7 +1,8 @@
 import { ApolloError } from "apollo-server";
-import { Arg, Args, Query, Resolver } from "type-graphql";
+import { Arg, Args, Mutation, Query, Resolver } from "type-graphql";
 import { getAll, getOne } from "../api";
-import { Filter, FilterArgs, ListArgs } from "./argsType";
+import { Filter, FilterArgs, ListArgs } from "./argTypes";
+import { Data } from "./InputTypes";
 import { SuperHero } from "./objectTypes";
 
 @Resolver(SuperHero)
@@ -9,7 +10,7 @@ export class SuperHeroResolver {
   private data: SuperHero[] = [];
 
   @Query(() => [SuperHero])
-  async listHeroes(@Args() {limit, order}: ListArgs): Promise<SuperHero[]> {
+  async listHeroes(@Args() { limit, order }: ListArgs): Promise<SuperHero[]> {
     try {
       const data = await getAll();
       const heroes: SuperHero[] = [...data, ...this.data];
@@ -49,7 +50,7 @@ export class SuperHeroResolver {
   }
 
   @Query(() => [SuperHero])
-  async searchHeroes(@Args() {query, filter}: FilterArgs) {
+  async searchHeroes(@Args() { query, filter }: FilterArgs) {
     try {
       const data = await getAll();
       const heroes = [...data, ...this.data];
@@ -79,6 +80,25 @@ export class SuperHeroResolver {
     } catch (error) {
       console.log(error);
       throw new ApolloError("Failed to load heroes");
+    }
+  }
+
+  @Mutation(() => SuperHero)
+  async createHero(@Arg("data") data: Data): Promise<SuperHero> {
+    try {
+      const apiHeroes = await getAll();
+      const heroes: SuperHero[] = [...apiHeroes, ...this.data];
+
+      const id = heroes.length + 1;
+      const slug = `${id}-${data.name.replace(" ", "-")}`;
+
+      const hero = { id, slug, ...data };
+
+      this.data = [...this.data, hero];
+
+      return hero;
+    } catch (error) {
+      throw new ApolloError("Failed to create a new hero");
     }
   }
 }

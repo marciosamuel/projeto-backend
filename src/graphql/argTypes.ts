@@ -2,9 +2,9 @@ import { ArgsType, Field, registerEnumType } from "type-graphql";
 
 @ArgsType()
 export class ListArgs {
-  @Field(() => Number, {nullable: true})
+  @Field(() => Number, { nullable: true })
   limit?: number;
-  @Field(() => String, {nullable: true})
+  @Field(() => String, { nullable: true })
   order?: string;
 }
 
@@ -24,6 +24,6 @@ registerEnumType(Filter, {
 export class FilterArgs {
   @Field()
   query!: string;
-  @Field(() => Filter, {nullable: true})
+  @Field(() => Filter, { nullable: true })
   filter?: Filter;
 }
